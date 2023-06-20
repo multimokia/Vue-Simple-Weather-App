@@ -33,6 +33,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-image: url("https://s1.picswalls.com/wallpapers/2017/12/11/awesome-nature-wallpaper_123025727_313.jpg");
 }
 
 h1 {
@@ -81,4 +82,8 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+textarea:focus, input:focus{
+    outline: #4a4a4a;
 }

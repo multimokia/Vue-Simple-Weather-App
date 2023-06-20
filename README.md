@@ -1,6 +1,11 @@
-# Vue 3 + TypeScript + Vite
+# Weather App
+This is a demo application for Vue 3, TypeScript, Vite, TailwindCSS, and OpenWeatherMap's API.
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+It features a simple weather app that allows you to search for a city and get the current weather for that city, leveraging Vue 3's Composition API, components, refs, forms, while also using TypeScript to provide type safety.
+
+To use this app, you will need a `.env` file, the required key is `VITE_OWM_API_KEY`, if this isn't set, the weather component will fail to load.
+
+
 
 ## Recommended IDE Setup
 
