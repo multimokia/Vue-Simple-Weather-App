@@ -46,8 +46,14 @@ export default {
                 <h2><em class="font-bold">Max</em> {{ weatherData.main?.temp_max.toFixed() }}°C</h2>
             </div>
             <div class="text-left">
-                <h2><em class="font-bold">Sunrise</em> {{ DateTime.fromSeconds(weatherData.sys.sunrise, {zone: 'utc' }).toLocal().toFormat("hh:mm ZZZZ") }}</h2>
-                <h2><em class="font-bold">Sunset</em> {{ DateTime.fromSeconds(weatherData.sys.sunset, {zone: 'utc' }).toLocal().toFormat("hh:mm ZZZZ") }}</h2>
+                <h2>
+                    <em class="font-bold">Sunrise</em>
+                    {{ DateTime.fromSeconds(weatherData.sys.sunrise, {zone: 'utc' }).toLocal().toFormat("hh:mm a ZZZZ") }}
+                </h2>
+                <h2>
+                    <em class="font-bold">Sunset</em>
+                    {{ DateTime.fromSeconds(weatherData.sys.sunset, {zone: 'utc' }).toLocal().toFormat("hh:mm a ZZZZ") }}
+                </h2>
             </div>
         </div>
     </div>
