@@ -45,7 +45,7 @@ export default {
                 <h2><em class="font-bold">Min</em> {{ weatherData.main?.temp_min.toFixed() }}°C</h2>
                 <h2><em class="font-bold">Max</em> {{ weatherData.main?.temp_max.toFixed() }}°C</h2>
             </div>
-            <div class="text-left">
+            <div class="text-right">
                 <h2>
                     <em class="font-bold">Sunrise</em>
                     {{ DateTime.fromSeconds(weatherData.sys.sunrise, {zone: 'utc' }).toLocal().toFormat("hh:mm a ZZZZ") }}
