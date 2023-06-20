@@ -1,7 +1,7 @@
 # Weather App
 This is a demo application for Vue 3, TypeScript, Vite, TailwindCSS, and OpenWeatherMap's API.
 
-It features a simple weather app that allows you to search for a city and get the current weather for that city, leveraging Vue 3's Composition API, components, refs, forms, while also using TypeScript to provide type safety.
+It features a simple responsive weather app that allows you to search for a city and get the current weather for that city, leveraging Vue 3's Composition API, components, refs, forms, while also using TypeScript to provide type safety.
 
 To use this app, you will need a `.env` file, the required key is `VITE_OWM_API_KEY`, if this isn't set, the weather component will fail to load.
 
