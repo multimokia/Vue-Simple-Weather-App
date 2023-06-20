@@ -11,6 +11,7 @@ export default {
             animation: {
                 marquee: 'marquee 25s linear infinite',
                 marquee2: 'marquee2 25s linear infinite',
+                "hover-slow": "hover 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
             },
             keyframes: {
                 marquee: {
