@@ -38,7 +38,7 @@
 </script>
 
 <template>
-    <div class="flex flex-col items-center space-y-4 w-[70vw] py-32 rounded-xl drop-shadow-lg">
+    <div class="flex flex-col items-center space-y-4 w-[70vw] py-32 rounded-xl">
         <SearchBar
             :searchQuery="searchQuery"
             @update:searchQuery="searchQuery = $event"

@@ -2,7 +2,7 @@
 import { PropType } from 'vue';
 
 export default {
-    name: 'WeatherEmbed',
+    name: 'SearchBar',
     props: {
         onSubmit: {
             type: Function as PropType<(payload: Event) => void>,
@@ -22,7 +22,7 @@ export default {
 </script>
 <template>
     <div class="w-3/4">
-        <form class="flex flex-row w-full" v-on:submit.prevent="onSubmit">
+        <form class="flex flex-row w-full " v-on:submit.prevent="onSubmit">
             <input
                 type="text"
                 placeholder="Search..."

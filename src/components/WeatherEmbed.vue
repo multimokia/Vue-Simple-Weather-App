@@ -21,7 +21,7 @@ export default {
 </script>
 
 <template>
-    <div class="w-3/4 bg-zinc-800 rounded-xl flex flex-col p-10">
+    <div class="w-3/4 bg-zinc-800 rounded-xl flex flex-col p-10 bg-opacity-80 backdrop-blur-sm drop-shadow-lg">
         <div class="flex flex-row">
             <div class="flex flex-col flex-grow text-left">
                 <h1 class="font-bold">{{ weatherData.name }}, {{ weatherData.sys.country }}</h1>
