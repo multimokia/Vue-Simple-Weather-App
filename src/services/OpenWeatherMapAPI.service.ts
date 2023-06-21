@@ -15,6 +15,11 @@ export class OpenWeatherMapAPIService {
         return await result.json();
     }
 
+    async get5DayForecast(lat: number, lon: number) {
+        const result = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${this.API_KEY}`);
+        return await result.json();
+    }
+
     async getWeatherDataByCity(city: string) {
         const locations = await this.getLocationsOfCity(city);
 
@@ -24,7 +29,10 @@ export class OpenWeatherMapAPIService {
 
         // We assume that the first location is the correct one
         const location = locations[0];
-        return await this.getWeatherData(location.lat, location.lon);
+        return {
+            currentWeather: await this.getWeatherData(location.lat, location.lon),
+            forecast: await this.get5DayForecast(location.lat, location.lon)
+        };
     }
 
     getIconUrl(icon: string) {
