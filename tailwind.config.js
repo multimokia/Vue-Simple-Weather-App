@@ -24,6 +24,12 @@ export default {
                     '100%': { transform: 'translateX(0%)' },
                 },
             },
+            maxHeight: {
+                '1/2': '50%',
+                '3/4': '75%',
+                '4/5': '80%',
+                '9/10': '90%',
+            }
         }
     },
     plugins: [

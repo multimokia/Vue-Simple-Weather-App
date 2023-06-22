@@ -2,6 +2,27 @@
 import { OWM_APIService } from '../services/OpenWeatherMapAPI.service';
 import { DateTime } from 'luxon';
 import { WeatherDataResponse } from '../types/WeatherDataResponse';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+import { Line } from 'vue-chartjs'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 export default {
     name: 'WeatherEmbed',
@@ -15,7 +36,23 @@ export default {
         return {
             DateTime,
             OWM_APIService,
+            data: {
+                labels: this.weatherData.forecast.list.map(
+                    (forecastItem) => DateTime.fromSeconds(forecastItem.dt, {zone: 'utc' }).toLocal().toFormat("ccc, h a")
+                ),
+                datasets: [
+                    {
+                        label: 'Temperature',
+                        data: this.weatherData.forecast.list.map((forecastItem) => forecastItem.main?.temp.toFixed()),
+                        borderColor: "#16a34a",
+                        tension: 0.3,
+                    },
+                ],
+            },
         };
+    },
+    components: {
+        Line,
     },
 }
 </script>
@@ -59,7 +96,7 @@ export default {
             </div>
         </div>
         <div class="flex flex-row overflow-x-scroll space-x-2 m-10 scrollbar-thin">
-            <div v-for="forecastItem in weatherData.forecast.list" class="p-2 min-w-max">
+            <!-- <div v-for="forecastItem in weatherData.forecast.list" class="p-2 min-w-max">
                 <div class="flex flex-col items-center w-full">
                     <h2 class="text-zinc-400" v-html="DateTime.fromSeconds(forecastItem.dt, {zone: 'utc' }).toLocal().toFormat(`ccc<br/>h a`)"></h2>
                     <img
@@ -69,6 +106,9 @@ export default {
                     />
                     <h2 class="text-zinc-400">{{ forecastItem.main?.temp.toFixed() }}°C</h2>
                 </div>
+            </div> -->
+            <div class="w-full">
+                <Line :data="data" :options="{responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}}" />
             </div>
         </div>
     </div>
