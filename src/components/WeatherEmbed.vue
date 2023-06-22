@@ -36,19 +36,6 @@ export default {
         return {
             DateTime,
             OWM_APIService,
-            data: {
-                labels: this.weatherData.forecast.list.map(
-                    (forecastItem) => DateTime.fromSeconds(forecastItem.dt, {zone: 'utc' }).toLocal().toFormat("ccc, h a")
-                ),
-                datasets: [
-                    {
-                        label: 'Temperature',
-                        data: this.weatherData.forecast.list.map((forecastItem) => forecastItem.main?.temp.toFixed()),
-                        borderColor: "#16a34a",
-                        tension: 0.3,
-                    },
-                ],
-            },
         };
     },
     components: {
@@ -108,7 +95,35 @@ export default {
                 </div>
             </div> -->
             <div class="w-full">
-                <Line :data="data" :options="{responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}}" />
+                <Line
+                    :data="{
+                        labels: weatherData.forecast.list.map(
+                            (forecastItem) => DateTime.fromSeconds(
+                                forecastItem.dt,
+                                {zone: 'utc' }
+                            ).toLocal().toFormat('ccc, h a')
+                        ),
+                        datasets: [
+                            {
+                                label: 'Temperature',
+                                data: weatherData.forecast.list.map(
+                                    (forecastItem) => parseInt(forecastItem.main?.temp.toFixed())
+                                ),
+                                borderColor: '#16a34a',
+                                tension: 0.3,
+                            },
+                        ],
+                    }"
+                    :options="{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }"
+                />
             </div>
         </div>
     </div>
