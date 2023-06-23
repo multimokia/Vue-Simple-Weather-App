@@ -189,7 +189,7 @@ export default {
                         <h1 class="text-center font-bold text-2xl">{{ weekday }}</h1>
                         <img
                             :src="getIconUrl(prediction.icon, true)"
-                            class="max-w-1/2 self-center flex-grow"
+                            class="max-w-1/2 self-center flex-grow drop-shadow-lg"
                         />
                         <h1 class="text-center font-bold text-2xl">{{ prediction.avgTemp.toFixed() }}°C</h1>
                         <div class="flex flex-row">
