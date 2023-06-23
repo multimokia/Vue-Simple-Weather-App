@@ -101,3 +101,7 @@ button:focus-visible {
 textarea:focus, input:focus{
     outline: #4a4a4a;
 }
+
+em {
+    font-style: normal;
+}

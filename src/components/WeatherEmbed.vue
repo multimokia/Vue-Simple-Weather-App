@@ -140,7 +140,7 @@ export default {
             <div class="w-full max-h-full flex-grow p-4 h-1">
                 <Line
                     width="4"
-                    height="2"
+                    height="4"
                     :data="{
                         labels: weatherData.forecast.list.slice(0, 7).map(
                             (forecastItem) => DateTime.fromSeconds(
@@ -148,16 +148,170 @@ export default {
                                 {zone: 'utc' }
                             ).toLocal().toFormat('ccc, h a')
                         ),
-                        datasets: [
-                            {
-                                label: 'Temperature',
-                                data: weatherData.forecast.list.slice(0, 7).map(
-                                    (forecastItem) => forecastItem.main?.temp
-                                ),
-                                borderColor: '#16a34a',
-                                tension: 0.3,
+                        datasets: [{
+                            label: 'Temperature',
+                            data: weatherData.forecast.list.slice(0, 7).map(
+                                (forecastItem) => forecastItem.main?.temp
+                            ),
+                            fill: {
+                                target: 'origin',
+                                above: 'rgba(255, 0, 0, 0.5)',
                             },
-                        ],
+                            borderColor: (line) => {
+                                const canvas = line.chart.ctx;
+                                const gradient = canvas.createLinearGradient(0,0,0,120);
+
+                                // We need to use the min/max values of the chart to determine where the color stops should be
+                                // Red should be anything above a value of 40
+                                // Yellow should be anything between 30 and 40
+                                // Green should be anything between 10 and 30
+                                // Blue should be anything below 10
+                                // Dark blue should be anything below 0
+
+                                // We need to get the min and max values of the chart
+                                const min = Math.min(...line.dataset.data as number[]);
+                                const max = Math.max(...line.dataset.data as number[]);
+                                console.log(min, max);
+
+                                // We now need to determine which of the hardstops are within our min/max range
+                                const hardstops = [
+                                    { value: 0, color: 'blue'},
+                                    { value: 10, color: 'lightblue'},
+                                    { value: 20, color: 'green'},
+                                    { value: 30, color: 'yellow'},
+                                    { value: 40, color: 'red'}
+                                ];
+
+                                // We now need to determine the percentage of the chart that each hardstop represents
+                                const percentageOfChart = (value: number) => (value - min) / (max - min);
+
+                                const normalizedHardstops = hardstops.map(
+                                    (hardstop) => ({
+                                        ...hardstop,
+                                        normalizedValue: percentageOfChart(hardstop.value)
+                                    })
+                                );
+
+                                console.log('Normalized Hardstops:', normalizedHardstops);
+
+                                // First things first, we should check if any percentages will be within the values
+                                const percentagesInRange = normalizedHardstops.filter(
+                                    (hardstop) => {
+                                        return hardstop.normalizedValue >= 0 && hardstop.normalizedValue <= 1;
+                                    }
+                                );
+
+                                console.log('Percentages in range:', percentagesInRange);
+
+                                if (percentagesInRange.length > 0) {
+                                    percentagesInRange.forEach((hardstop) => {
+                                        gradient.addColorStop(
+                                            percentageOfChart(hardstop.value),
+                                            hardstop.color
+                                        );
+                                    });
+
+                                    // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
+                                    // For now, let's take +/- 30% of 0 or 1 for the bleeding
+                                    const bleedingPercentage = 0.3;
+                                    const lowestHardstopIndex = hardstops.findIndex((h) => h.value === percentagesInRange[0].value);
+                                    const highestHardstopIndex = hardstops.findIndex((h) => h.value === percentagesInRange[percentagesInRange.length - 1].value);
+
+                                    // First let's start with low bleed
+                                    // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
+                                    if (lowestHardstopIndex !== 0) {
+                                        const lowBleed = normalizedHardstops[lowestHardstopIndex - 1];
+
+                                        // Now we need to check if the low bleed is within the bleeding range
+                                        if (Math.abs(0 - lowBleed.normalizedValue) <= bleedingPercentage) {
+                                            gradient.addColorStop(
+                                                1,
+                                                lowBleed.color
+                                            );
+                                            gradient.addColorStop(
+                                                0.9,
+                                                hardstops[lowestHardstopIndex].color
+                                            )
+                                        }
+                                    }
+
+                                    // Now let's do high bleed
+                                    // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
+                                    if (highestHardstopIndex !== hardstops.length - 1) {
+                                        const highBleed = normalizedHardstops[highestHardstopIndex + 1];
+
+                                        // Now we need to check if the high bleed is within the bleeding range
+                                        if (Math.abs(1 - highBleed.normalizedValue) <= bleedingPercentage) {
+                                            gradient.addColorStop(
+                                                0,
+                                                hardstops[highestHardstopIndex].color
+                                            )
+                                            gradient.addColorStop(
+                                                0.1,
+                                                highBleed.color
+                                            );
+                                        }
+                                    }
+                                }
+
+                                else {
+                                    // If there are no percentages in range, this means we're perfectly between a range, so let's find the range we're between
+                                    // Since the hardstop values are from anything below to the hardstop, we need to search for the hardstop that is above our max
+                                    const hardstopAboveMaxIndex = hardstops.findIndex(
+                                        (hardstop) => hardstop.value > max
+                                    );
+
+                                    // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
+                                    // For now, let's take +/- 30% of 0 or 1 for the bleeding
+                                    const bleedingPercentage = 0.3;
+
+                                    // First let's start with low bleed
+                                    // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
+                                    if (hardstopAboveMaxIndex !== 0) {
+                                        const lowBleed = normalizedHardstops[hardstopAboveMaxIndex - 1];
+
+                                        // Now we need to check if the low bleed is within the bleeding range
+                                        if (Math.abs(0 - lowBleed.normalizedValue) <= bleedingPercentage) {
+                                            gradient.addColorStop(
+                                                1,
+                                                lowBleed.color
+                                            );
+                                            gradient.addColorStop(
+                                                0.9,
+                                                hardstops[hardstopAboveMaxIndex].color
+                                            )
+                                        }
+                                    }
+
+                                    // Now let's do high bleed
+                                    // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
+                                    if (hardstopAboveMaxIndex !== hardstops.length - 1) {
+                                        const highBleed = normalizedHardstops[hardstopAboveMaxIndex + 1];
+
+                                        // Now we need to check if the high bleed is within the bleeding range
+                                        if (Math.abs(1 - highBleed.normalizedValue) <= bleedingPercentage) {
+                                            gradient.addColorStop(
+                                                0,
+                                                hardstops[hardstopAboveMaxIndex].color
+                                            )
+                                            gradient.addColorStop(
+                                                0.1,
+                                                highBleed.color
+                                            );
+                                        }
+                                    }
+
+                                    // Now we just need to add the current hardstop itself
+                                    gradient.addColorStop(
+                                        0.5,
+                                        hardstops[hardstopAboveMaxIndex].color
+                                    )
+                                }
+
+                                return gradient;
+                            },
+                            tension: 0.3,
+                        }],
                     }"
                     :options="{
                         responsive: true,
@@ -166,6 +320,24 @@ export default {
                             legend: {
                                 display: false
                             }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.5)',
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                },
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.5)',
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                },
+                            },
                         }
                     }"
                 />
