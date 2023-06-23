@@ -40,7 +40,7 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col items-center space-y-4 w-[70vw] rounded-xl">
+    <div class="flex flex-col items-center space-y-4 rounded-xl">
         <SearchBar
             :searchQuery="searchQuery"
             @update:searchQuery="searchQuery = $event"
@@ -50,7 +50,7 @@ export default {
         <WeatherEmbed
             v-if="weatherData.currentWeather.name"
             :weatherData="weatherData"
-            class="self-center animate-fade-up"
+            class="self-center animate-fade-up xl:w-[90vw]"
         />
     </div>
 </template>

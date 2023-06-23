@@ -22,6 +22,14 @@ export type WeatherData = {
     clouds?: {
         all: number
     },
+    rain?: {
+        '1h': number,
+        '3h': number
+    },
+    snow?: {
+        '1h': number,
+        '3h': number
+    },
     dt: number,
     sys: {
         type: number,

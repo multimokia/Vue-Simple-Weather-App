@@ -35,8 +35,8 @@ export class OpenWeatherMapAPIService {
         };
     }
 
-    getIconUrl(icon: string) {
-        return `https://openweathermap.org/img/wn/${icon}@4x.png`;
+    getIconUrl(icon: string, day: boolean = false) {
+        return `https://openweathermap.org/img/wn/${day ? icon.replace('n', 'd') : icon}@4x.png`;
     }
 }
 

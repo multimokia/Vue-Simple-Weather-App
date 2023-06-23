@@ -2,6 +2,7 @@
 import { OWM_APIService } from '../services/OpenWeatherMapAPI.service';
 import { DateTime } from 'luxon';
 import { WeatherDataResponse } from '../types/WeatherDataResponse';
+import { FiveDayForecastData } from '../types/5DayForecastData';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -38,6 +39,44 @@ export default {
             OWM_APIService,
         };
     },
+    methods: {
+        getIconUrl(icon: string, forceDay: boolean = false) {
+            return OWM_APIService.getIconUrl(icon, forceDay);
+        },
+        processForecastToDaily(forecastData: FiveDayForecastData) {
+            // We need to group the forecast data by day, so we can display the min and max temperatures for each day.
+            // We should also display an icon for the weather for each day.
+            const rvOrg = new Map<string, FiveDayForecastData['list']>();
+            forecastData.list.map((data) => {
+                const dayOfWeek = DateTime.fromSeconds(data.dt, { zone: 'utc' }).toFormat('cccc');
+
+                if (!rvOrg.has(dayOfWeek)) {
+                    rvOrg.set(dayOfWeek, []);
+                }
+
+                // Above enforces the creation of the list, so we can push to it
+                rvOrg.get(dayOfWeek)!.push(data);
+            });
+
+            // Now with organized data, we need to get the min and max temperatures for each day, calculate averages, and determine the image
+            const rv = new Map<string, { minTemp: number, maxTemp: number, avgTemp: number, icon: string }>();
+            for (const [ k, v ] of rvOrg.entries()) {
+                const minTemp = Math.min(...v.map((data) => data.main?.temp_min));
+                const maxTemp = Math.max(...v.map((data) => data.main?.temp_max));
+                const avgTemp = v.reduce((acc, data) => acc + data.main?.temp, 0) / v.length;
+                const icon = v[0].weather?.[0].icon;
+
+                rv.set(k, {
+                    minTemp,
+                    maxTemp,
+                    avgTemp,
+                    icon,
+                });
+            }
+
+            return rv;
+        }
+    },
     components: {
         Line,
     },
@@ -45,21 +84,36 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-row bg-zinc-800 rounded-xl bg-opacity-80 backdrop-blur-sm drop-shadow-lg max-h-[75vh]">
-        <div class="flex flex-col">
-            <div class="bg-zinc-900 rounded-tl-xl flex flex-col p-10 bg-opacity-80 backdrop-blur-sm">
-                <div class="flex flex-row">
-                    <div class="flex flex-col flex-grow text-left">
+    <div class="flex flex-row bg-zinc-800 rounded-xl bg-opacity-80 backdrop-blur-sm drop-shadow-lg transition-all max-h-[80vh]">
+        <div class="flex flex-col flex-grow overflow-hidden">
+            <div class="bg-zinc-900 rounded-tl-xl rounded-br-lg flex flex-col flex-grow p-10 bg-opacity-80 backdrop-blur-sm drop-shadow-lg">
+                <div class="flex flex-row flex-grow">
+                    <div class="flex flex-col flex-grow text-left pt-8">
                         <h1 class="font-bold">{{ weatherData.currentWeather.name }}, {{ weatherData.currentWeather.sys.country }}</h1>
                         <h1 class="text-4xl font-bold">{{ weatherData.currentWeather.main?.temp.toFixed() }}°C</h1>
                         <h2 class="text-3xl text-zinc-400">{{ weatherData.currentWeather.weather?.[0].description }}</h2>
                     </div>
                     <div class="flex flex-col items-center">
                         <img
-                            :src="OWM_APIService.getIconUrl(weatherData.currentWeather.weather?.[0].icon)"
+                            :src="getIconUrl(weatherData.currentWeather.weather?.[0].icon)"
                             :alt="weatherData.currentWeather.weather?.[0].description"
                             class="w-full self-center"
                         />
+                    </div>
+                </div>
+                <div class="flex flex-row flex-grow">
+                    <!-- Optional params (rain/wind speed/cloud cover) -->
+                    <div class="flex flex-col text-zinc-400 text-left flex-grow">
+                        <h2><em class="font-bold">Wind</em> {{ weatherData.currentWeather.wind?.speed }}m/s</h2>
+                        <h2><em class="font-bold">Clouds</em> {{ weatherData.currentWeather.clouds?.all }}%</h2>
+                    </div>
+                    <div class="flex flex-col text-zinc-400 text-left">
+                        <h2 v-if="weatherData.currentWeather.rain"><em class="font-bold">Rain</em> {{ weatherData.currentWeather.rain['1h'] }}mm</h2>
+                        <h2 v-if="weatherData.currentWeather.snow"><em class="font-bold">Snow</em> {{ weatherData.currentWeather.snow['1h'] }}mm</h2>
+                    </div>
+                    <div class="flex flex-col text-zinc-400 text-left">
+                        <h2><em class="font-bold">Pressure</em> {{ weatherData.currentWeather.main?.pressure }}hPa</h2>
+                        <h2><em class="font-bold">Visibility</em> {{ weatherData.currentWeather.visibility }}m</h2>
                     </div>
                 </div>
                 <div class="flex flex-row justify-between text-zinc-400 text-left">
@@ -83,10 +137,12 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="w-full h-full">
+            <div class="w-full max-h-full flex-grow p-4 h-1">
                 <Line
+                    width="4"
+                    height="2"
                     :data="{
-                        labels: weatherData.forecast.list.map(
+                        labels: weatherData.forecast.list.slice(0, 7).map(
                             (forecastItem) => DateTime.fromSeconds(
                                 forecastItem.dt,
                                 {zone: 'utc' }
@@ -95,8 +151,8 @@ export default {
                         datasets: [
                             {
                                 label: 'Temperature',
-                                data: weatherData.forecast.list.map(
-                                    (forecastItem) => parseInt(forecastItem.main?.temp.toFixed())
+                                data: weatherData.forecast.list.slice(0, 7).map(
+                                    (forecastItem) => forecastItem.main?.temp
                                 ),
                                 borderColor: '#16a34a',
                                 tension: 0.3,
@@ -115,17 +171,31 @@ export default {
                 />
             </div>
         </div>
-        <div class="flex flex-col overflow-y-scroll max-h-1/2 w-20">
-            <!-- Given the forecast for the next 5 days, let's make a small easy to consume readout for each of the day (their min/max temps + main weather img ) -->
-            <div v-for="forecastItem in weatherData.forecast.list" class="p-2 min-w-max">
-                <div class="flex flex-col items-center w-full">
-                    <h2 class="text-zinc-400" v-html="DateTime.fromSeconds(forecastItem.dt, {zone: 'utc' }).toLocal().toFormat(`ccc<br/>h a`)"></h2>
-                    <img
-                        :src="OWM_APIService.getIconUrl(forecastItem.weather?.[0].icon)"
-                        :alt="forecastItem.weather?.[0].description"
-                        class="w-10 self-center"
-                    />
-                    <h2 class="text-zinc-400">{{ forecastItem.main?.temp.toFixed() }}°C</h2>
+        <div class="p-2">
+            <div class="flex flex-col space-y-2 overflow-y-scroll scrollbar-thin max-h-full p-2">
+                <div
+                    v-for="[ weekday, prediction ] of processForecastToDaily(weatherData.forecast)"
+                    class="
+                        p-2
+                        bg-zinc-700
+                        rounded-xl
+                        bg-opacity-80
+                        backdrop-blur-sm
+                        h-full
+                        flex-grow
+                    "
+                >
+                    <div class="flex flex-col items-center">
+                        <h1 class="text-center font-bold text-2xl">{{ weekday }}</h1>
+                        <img
+                            :src="getIconUrl(prediction.icon, true)"
+                            class="max-w-1/2 self-center flex-grow"
+                        />
+                        <h1 class="text-center font-bold text-2xl">{{ prediction.avgTemp.toFixed() }}°C</h1>
+                        <div class="flex flex-row">
+                            <h2 class="text-center text-zinc-400">{{ prediction.maxTemp.toFixed() }}°C | {{ prediction.minTemp.toFixed() }}°C</h2>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
