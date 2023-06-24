@@ -186,9 +186,10 @@ export default {
                                 const percentageOfChart = (value: number) => (value - min) / (max - min);
 
                                 const normalizedHardstops = hardstops.map(
-                                    (hardstop) => ({
+                                    (hardstop, index) => ({
                                         ...hardstop,
-                                        normalizedValue: percentageOfChart(hardstop.value)
+                                        normalizedValue: percentageOfChart(hardstop.value),
+                                        index: index
                                     })
                                 );
 
@@ -204,11 +205,21 @@ export default {
                                 console.log('Percentages in range:', percentagesInRange);
 
                                 if (percentagesInRange.length > 0) {
+                                    console.log('if flow');
                                     percentagesInRange.forEach((hardstop) => {
+                                        const prevPercentage = hardstop.normalizedValue;
                                         gradient.addColorStop(
-                                            percentageOfChart(hardstop.value),
+                                            1 - prevPercentage,
                                             hardstop.color
                                         );
+
+                                        if (hardstop.index !== normalizedHardstops.length - 1) {
+                                            gradient.addColorStop(
+                                                1 - prevPercentage - 0.2,
+                                                normalizedHardstops[hardstop.index + 1].color
+                                            );
+                                        }
+                                        // We also need to add the next color immediately after this, as
                                     });
 
                                     // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
@@ -255,6 +266,7 @@ export default {
                                 }
 
                                 else {
+                                    console.log('else flow');
                                     // If there are no percentages in range, this means we're perfectly between a range, so let's find the range we're between
                                     // Since the hardstop values are from anything below to the hardstop, we need to search for the hardstop that is above our max
                                     const hardstopAboveMaxIndex = hardstops.findIndex(
