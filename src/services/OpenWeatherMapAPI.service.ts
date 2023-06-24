@@ -35,6 +35,13 @@ export class OpenWeatherMapAPIService {
         };
     }
 
+    async getWeatherDataByCoords(lat: number, lon: number) {
+        return {
+            currentWeather: await this.getWeatherData(lat, lon),
+            forecast: await this.get5DayForecast(lat, lon)
+        };
+    }
+
     getIconUrl(icon: string, day: boolean = false) {
         return `https://openweathermap.org/img/wn/${day ? icon.replace('n', 'd') : icon}@4x.png`;
     }

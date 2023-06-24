@@ -19,6 +19,9 @@ export default {
         };
     },
     setup() {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            weatherData.value = await OWM_APIService.getWeatherDataByCoords(position.coords.latitude, position.coords.longitude);
+        });
         OWM_APIService.getWeatherDataByCity('London').then((data) => {
             weatherData.value = data;
         });
