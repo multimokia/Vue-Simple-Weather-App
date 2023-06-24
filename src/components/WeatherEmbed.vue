@@ -75,7 +75,67 @@ export default {
             }
 
             return rv;
-        }
+        },
+        processLowerGradientBleed(
+            gradient: CanvasGradient,
+            normalizedHardstops: {
+                value: number,
+                color: string,
+                normalizedValue: number
+            }[],
+            hardstops: {
+                value: number,
+                color: string
+            }[],
+            bleedingPercentage: number,
+            hardstopIndex: number
+        ) {
+            if (hardstopIndex !== 0) {
+                const lowBleed = normalizedHardstops[hardstopIndex - 1];
+
+                // Now we need to check if the low bleed is within the bleeding range
+                if (Math.abs(0 - lowBleed.normalizedValue) <= bleedingPercentage) {
+                    gradient.addColorStop(
+                        1,
+                        lowBleed.color
+                    );
+                    gradient.addColorStop(
+                        0.9,
+                        hardstops[hardstopIndex].color
+                    )
+                }
+            }
+        },
+        processHigherGradientBleed(
+            gradient: CanvasGradient,
+            normalizedHardstops: {
+                value: number,
+                color: string,
+                normalizedValue: number
+            }[],
+            hardstops: {
+                value: number,
+                color: string
+            }[],
+            bleedingPercentage: number,
+            hardstopIndex: number
+        ) {
+            if (hardstopIndex !== hardstops.length - 1) {
+                const highBleed = normalizedHardstops[hardstopIndex + 1];
+
+                // Now we need to check if the high bleed is within the bleeding range
+                if (Math.abs(1 - highBleed.normalizedValue) <= bleedingPercentage) {
+                    gradient.addColorStop(
+                        0,
+                        hardstops[hardstopIndex].color
+                    )
+                    gradient.addColorStop(
+                        0.1,
+                        highBleed.color
+                    );
+                }
+            }
+        },
     },
     components: {
         Line,
@@ -171,7 +231,6 @@ export default {
                                 // We need to get the min and max values of the chart
                                 const min = Math.min(...line.dataset.data as number[]);
                                 const max = Math.max(...line.dataset.data as number[]);
-                                console.log(min, max);
 
                                 // We now need to determine which of the hardstops are within our min/max range
                                 const hardstops = [
@@ -193,8 +252,6 @@ export default {
                                     })
                                 );
 
-                                console.log('Normalized Hardstops:', normalizedHardstops);
-
                                 // First things first, we should check if any percentages will be within the values
                                 const percentagesInRange = normalizedHardstops.filter(
                                     (hardstop) => {
@@ -202,10 +259,11 @@ export default {
                                     }
                                 );
 
-                                console.log('Percentages in range:', percentagesInRange);
+                                // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
+                                // For now, let's take +/- 30% of 0 or 1 for the bleeding
+                                const bleedingPercentage = 0.3;
 
                                 if (percentagesInRange.length > 0) {
-                                    console.log('if flow');
                                     percentagesInRange.forEach((hardstop) => {
                                         const prevPercentage = hardstop.normalizedValue;
                                         gradient.addColorStop(
@@ -222,96 +280,57 @@ export default {
                                         // We also need to add the next color immediately after this, as
                                     });
 
-                                    // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
-                                    // For now, let's take +/- 30% of 0 or 1 for the bleeding
-                                    const bleedingPercentage = 0.3;
+
                                     const lowestHardstopIndex = hardstops.findIndex((h) => h.value === percentagesInRange[0].value);
                                     const highestHardstopIndex = hardstops.findIndex((h) => h.value === percentagesInRange[percentagesInRange.length - 1].value);
 
                                     // First let's start with low bleed
                                     // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
-                                    if (lowestHardstopIndex !== 0) {
-                                        const lowBleed = normalizedHardstops[lowestHardstopIndex - 1];
-
-                                        // Now we need to check if the low bleed is within the bleeding range
-                                        if (Math.abs(0 - lowBleed.normalizedValue) <= bleedingPercentage) {
-                                            gradient.addColorStop(
-                                                1,
-                                                lowBleed.color
-                                            );
-                                            gradient.addColorStop(
-                                                0.9,
-                                                hardstops[lowestHardstopIndex].color
-                                            )
-                                        }
-                                    }
+                                    processLowerGradientBleed(
+                                        gradient,
+                                        normalizedHardstops,
+                                        hardstops,
+                                        bleedingPercentage,
+                                        lowestHardstopIndex
+                                    );
 
                                     // Now let's do high bleed
                                     // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
-                                    if (highestHardstopIndex !== hardstops.length - 1) {
-                                        const highBleed = normalizedHardstops[highestHardstopIndex + 1];
-
-                                        // Now we need to check if the high bleed is within the bleeding range
-                                        if (Math.abs(1 - highBleed.normalizedValue) <= bleedingPercentage) {
-                                            gradient.addColorStop(
-                                                0,
-                                                hardstops[highestHardstopIndex].color
-                                            )
-                                            gradient.addColorStop(
-                                                0.1,
-                                                highBleed.color
-                                            );
-                                        }
-                                    }
+                                    processHigherGradientBleed(
+                                        gradient,
+                                        normalizedHardstops,
+                                        hardstops,
+                                        bleedingPercentage,
+                                        highestHardstopIndex
+                                    );
                                 }
 
                                 else {
-                                    console.log('else flow');
                                     // If there are no percentages in range, this means we're perfectly between a range, so let's find the range we're between
                                     // Since the hardstop values are from anything below to the hardstop, we need to search for the hardstop that is above our max
                                     const hardstopAboveMaxIndex = hardstops.findIndex(
                                         (hardstop) => hardstop.value > max
                                     );
 
-                                    // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
-                                    // For now, let's take +/- 30% of 0 or 1 for the bleeding
-                                    const bleedingPercentage = 0.3;
-
                                     // First let's start with low bleed
                                     // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
-                                    if (hardstopAboveMaxIndex !== 0) {
-                                        const lowBleed = normalizedHardstops[hardstopAboveMaxIndex - 1];
-
-                                        // Now we need to check if the low bleed is within the bleeding range
-                                        if (Math.abs(0 - lowBleed.normalizedValue) <= bleedingPercentage) {
-                                            gradient.addColorStop(
-                                                1,
-                                                lowBleed.color
-                                            );
-                                            gradient.addColorStop(
-                                                0.9,
-                                                hardstops[hardstopAboveMaxIndex].color
-                                            )
-                                        }
-                                    }
+                                    processLowerGradientBleed(
+                                        gradient,
+                                        normalizedHardstops,
+                                        hardstops,
+                                        bleedingPercentage,
+                                        hardstopAboveMaxIndex
+                                    );
 
                                     // Now let's do high bleed
                                     // Before that, we need to check if the current hardstop is the last one, if so, we can't bleed
-                                    if (hardstopAboveMaxIndex !== hardstops.length - 1) {
-                                        const highBleed = normalizedHardstops[hardstopAboveMaxIndex + 1];
-
-                                        // Now we need to check if the high bleed is within the bleeding range
-                                        if (Math.abs(1 - highBleed.normalizedValue) <= bleedingPercentage) {
-                                            gradient.addColorStop(
-                                                0,
-                                                hardstops[hardstopAboveMaxIndex].color
-                                            )
-                                            gradient.addColorStop(
-                                                0.1,
-                                                highBleed.color
-                                            );
-                                        }
-                                    }
+                                    processHigherGradientBleed(
+                                        gradient,
+                                        normalizedHardstops,
+                                        hardstops,
+                                        bleedingPercentage,
+                                        hardstopAboveMaxIndex
+                                    );
 
                                     // Now we just need to add the current hardstop itself
                                     gradient.addColorStop(
