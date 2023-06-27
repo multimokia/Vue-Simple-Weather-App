@@ -20,7 +20,7 @@ export default {
 <template>
     <div class="flex flex-row flex-grow">
         <div class="flex flex-col flex-grow text-left pt-8">
-            <h1 class="font-bold">{{ weatherData.currentWeather.name }}, {{ weatherData.currentWeather.sys.country }}</h1>
+            <h1 class="font-bold text-2xl lg:text-6xl">{{ weatherData.currentWeather.name }}, {{ weatherData.currentWeather.sys.country }}</h1>
             <h1 class="text-4xl font-bold">{{ weatherData.currentWeather.main?.temp.toFixed() }}°C</h1>
             <h2 class="text-3xl text-zinc-400">{{ weatherData.currentWeather.weather?.[0].description }}</h2>
         </div>

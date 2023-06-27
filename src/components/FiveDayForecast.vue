@@ -2,6 +2,9 @@
 import { DateTime } from 'luxon';
 import { FiveDayForecastData } from '../types/5DayForecastData';
 import { OWM_APIService } from '../services/OpenWeatherMapAPI.service';
+import { useMediaQuery } from '@vueuse/core';
+
+const isMobile = useMediaQuery('(max-width: 900px)');
 
 export default {
     props: {
@@ -9,6 +12,8 @@ export default {
             type: Object as () => FiveDayForecastData,
             required: true,
         }
+    },
+    data() {
     },
     methods: {
         getIconUrl(icon: string, forceDay: boolean = false) {
@@ -19,7 +24,8 @@ export default {
             // We should also display an icon for the weather for each day.
             const rvOrg = new Map<string, FiveDayForecastData['list']>();
             forecastData.list.map((data) => {
-                const dayOfWeek = DateTime.fromSeconds(data.dt, { zone: 'utc' }).toFormat('cccc');
+                const dayFmt = isMobile ? "ccc" : "cccc";
+                const dayOfWeek = DateTime.fromSeconds(data.dt, { zone: 'utc' }).toFormat(dayFmt);
 
                 if (!rvOrg.has(dayOfWeek)) {
                     rvOrg.set(dayOfWeek, []);
@@ -61,6 +67,8 @@ export default {
             backdrop-blur-sm
             h-full
             flex-grow
+            min-w-0
+            basis-64
         "
     >
         <div class="flex flex-col items-center">

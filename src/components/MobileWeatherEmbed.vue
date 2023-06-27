@@ -1,14 +1,13 @@
 <script lang="ts">
-import { OWM_APIService } from '../services/OpenWeatherMapAPI.service';
-import { DateTime } from 'luxon';
 import { WeatherDataResponse } from '../types/WeatherDataResponse';
+import { DateTime } from 'luxon';
 
 import TemperatureGraph from './TemperatureGraph.vue';
 import SimpleCurrentWeatherInfo from './SimpleCurrentWeatherInfo.vue';
 import FiveDayForecast from './FiveDayForecast.vue';
 
 export default {
-    name: 'WeatherEmbed',
+    name: "MobileWeatherEmbed",
     props: {
         weatherData: {
             type: Object as () => WeatherDataResponse,
@@ -18,7 +17,6 @@ export default {
     data() {
         return {
             DateTime,
-            OWM_APIService,
         };
     },
     components: {
@@ -30,28 +28,13 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-row bg-zinc-800 rounded-xl bg-opacity-80 backdrop-blur-sm drop-shadow-lg transition-all max-h-[80vh]">
-        <div class="flex flex-col flex-grow overflow-hidden">
-            <div class="bg-zinc-900 rounded-tl-xl rounded-br-lg flex flex-col flex-grow p-10 bg-opacity-80 backdrop-blur-sm drop-shadow-lg">
+    <div class="flex flex-col bg-zinc-800 rounded-xl bg-opacity-80 backdrop-blur-sm drop-shadow-lg transition-all">
+        <div class="flex flex-col flex-grow overflow-scroll">
+            <div class="bg-zinc-900 rounded-xl flex flex-col flex-grow p-10 bg-opacity-80 backdrop-blur-sm drop-shadow-lg">
                 <SimpleCurrentWeatherInfo
                     :weatherData="weatherData"
                     class="flex-grow"
                 />
-                <div class="flex flex-row flex-grow">
-                    <!-- Optional params (rain/wind speed/cloud cover) -->
-                    <div class="flex flex-col text-zinc-400 text-left flex-grow">
-                        <h2><em class="font-bold">Wind</em> {{ weatherData.currentWeather.wind?.speed }}m/s</h2>
-                        <h2><em class="font-bold">Clouds</em> {{ weatherData.currentWeather.clouds?.all }}%</h2>
-                    </div>
-                    <div class="flex flex-col text-zinc-400 text-left">
-                        <h2 v-if="weatherData.currentWeather.rain"><em class="font-bold">Rain</em> {{ weatherData.currentWeather.rain['1h'] }}mm</h2>
-                        <h2 v-if="weatherData.currentWeather.snow"><em class="font-bold">Snow</em> {{ weatherData.currentWeather.snow['1h'] }}mm</h2>
-                    </div>
-                    <div class="flex flex-col text-zinc-400 text-left">
-                        <h2><em class="font-bold">Pressure</em> {{ weatherData.currentWeather.main?.pressure }}hPa</h2>
-                        <h2><em class="font-bold">Visibility</em> {{ weatherData.currentWeather.visibility }}m</h2>
-                    </div>
-                </div>
                 <div class="flex flex-row justify-between text-zinc-400 text-left">
                     <div class="flex flex-col">
                         <h2><em class="font-bold">Feels like</em> {{ weatherData.currentWeather.main?.feels_like.toFixed() }}°C</h2>
@@ -72,16 +55,21 @@ export default {
                         </h2>
                     </div>
                 </div>
-            </div>
-            <div class="w-full max-h-full flex-grow p-4 h-1">
-                <TemperatureGraph
-                    :weather-data="weatherData"
-                    class="w-full h-full"
-                />
+                <div class="flex flex-col flex-grow text-zinc-400 text-left">
+                    <!-- Optional params (rain/wind speed/cloud cover) -->
+                    <div class="flex flex-col text-zinc-400 text-left flex-grow">
+                        <h2><em class="font-bold">Wind</em> {{ weatherData.currentWeather.wind?.speed }}m/s</h2>
+                        <h2><em class="font-bold">Clouds</em> {{ weatherData.currentWeather.clouds?.all }}%</h2>
+                    </div>
+                    <div class="flex flex-col text-zinc-400 text-left">
+                        <h2 v-if="weatherData.currentWeather.rain"><em class="font-bold">Rain</em> {{ weatherData.currentWeather.rain['1h'] }}mm</h2>
+                        <h2 v-if="weatherData.currentWeather.snow"><em class="font-bold">Snow</em> {{ weatherData.currentWeather.snow['1h'] }}mm</h2>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="p-2">
-            <div class="flex flex-col space-y-2 overflow-y-scroll scrollbar-thin max-h-full p-2">
+            <div class="flex flex-row space-x-2 overflow-x-scroll scrollbar-thin max-h-full p-2">
                 <FiveDayForecast
                     :forecastData="weatherData.forecast"
                 />

@@ -1,12 +1,17 @@
 <script lang="ts">
+import { useMediaQuery } from '@vueuse/core'
 import { OWM_APIService } from './services/OpenWeatherMapAPI.service';
 import { ref } from 'vue';
+import { WeatherDataResponse } from './types/WeatherDataResponse';
+
 import WeatherEmbed from './components/WeatherEmbed.vue';
 import SearchBar from './components/SearchBar.vue';
-import { WeatherDataResponse } from './types/WeatherDataResponse';
+import MobileWeatherEmbed from './components/MobileWeatherEmbed.vue';
 
 let searchQuery = ref('');
 let weatherData = ref<WeatherDataResponse>({} as WeatherDataResponse);
+
+const isMobile = useMediaQuery('(max-width: 900px)');
 
 export default {
     name: 'App',
@@ -14,6 +19,7 @@ export default {
         return {
             searchQuery,
             weatherData,
+            isMobile,
         };
     },
     setup() {
@@ -33,6 +39,7 @@ export default {
     components: {
         WeatherEmbed,
         SearchBar,
+        MobileWeatherEmbed,
     },
 }
 </script>
@@ -46,9 +53,14 @@ export default {
             class="self-center animate-fade-down"
         />
         <WeatherEmbed
-            v-if="weatherData.currentWeather.name"
+            v-if="!isMobile"
             :weatherData="weatherData"
             class="self-center animate-fade-up xl:w-[90vw]"
+        />
+        <MobileWeatherEmbed
+            v-else
+            :weatherData="weatherData"
+            class="self-center animate-fade-up w-[90vw]"
         />
     </div>
 </template>
