@@ -67,19 +67,23 @@ export default {
             backdrop-blur-sm
             h-full
             flex-grow
-            min-w-0
+            min-w-fit
+            lg:min-w-0
         "
     >
-        <div class="flex flex-col items-center">
-            <h1 class="text-center font-bold text-lg lg:text-2xl">{{ weekday }}</h1>
+        <h1 class="text-center font-bold text-lg lg:text-2xl">{{ weekday }}</h1>
+        <div class="flex items-center flex-row lg:flex-col">
             <img
                 :src="getIconUrl(prediction.icon, true)"
-                class="max-w-1/2 self-center flex-grow drop-shadow-lg"
+                class="max-w-1/2 self-center drop-shadow-lg"
             />
-            <h1 class="text-center font-bold text-lg lg:text-2xl">{{ prediction.avgTemp.toFixed() }}°C</h1>
-            <div class="flex flex-row">
-                <h2 class="text-center text-zinc-400">{{ prediction.maxTemp.toFixed() }}°C | {{ prediction.minTemp.toFixed() }}°C</h2>
+            <div class="flex flex-col">
+                <h1 class="text-center font-bold text-lg lg:text-2xl">{{ prediction.avgTemp.toFixed() }}°C</h1>
+                <div class="flex flex-row">
+                    <h2 class="text-center text-zinc-400 whitespace-nowrap">{{ prediction.maxTemp.toFixed() }}°C | {{ prediction.minTemp.toFixed() }}°C</h2>
+                </div>
             </div>
+
         </div>
     </div>
 </template>

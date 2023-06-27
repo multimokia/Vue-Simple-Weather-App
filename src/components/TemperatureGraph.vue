@@ -188,6 +188,7 @@ export default {
                                 // We need to check how far we can bleed as to not go over 1
                                 let bleedAmt = 0.2;
 
+                                console.log(prevPercentage);
                                 if (1 - prevPercentage - bleedAmt < 0) {
                                     bleedAmt = 1 - prevPercentage;
                                 }
