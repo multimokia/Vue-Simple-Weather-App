@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vueuse/core": "^10.2.0",
     "luxon": "^3.3.0",
     "tailwind-scrollbar": "^3.0.4",
     "tailwindcss-animated": "^1.0.1",
