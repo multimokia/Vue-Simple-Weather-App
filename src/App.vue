@@ -5,8 +5,6 @@ import WeatherEmbed from './components/WeatherEmbed.vue';
 import SearchBar from './components/SearchBar.vue';
 import { WeatherDataResponse } from './types/WeatherDataResponse';
 
-
-
 let searchQuery = ref('');
 let weatherData = ref<WeatherDataResponse>({} as WeatherDataResponse);
 
