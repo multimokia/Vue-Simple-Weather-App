@@ -69,7 +69,7 @@ export default {
             </div>
         </div>
         <div class="p-2">
-            <div class="flex flex-row space-x-2 overflow-x-scroll scrollbar-thin max-h-full p-2">
+            <div class="flex flex-row space-x-2 overflow-x-scroll scrollbar-thin max-w-full p-2">
                 <FiveDayForecast
                     :forecastData="weatherData.forecast"
                 />

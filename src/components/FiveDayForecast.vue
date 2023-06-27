@@ -68,16 +68,15 @@ export default {
             h-full
             flex-grow
             min-w-0
-            basis-64
         "
     >
         <div class="flex flex-col items-center">
-            <h1 class="text-center font-bold text-2xl">{{ weekday }}</h1>
+            <h1 class="text-center font-bold text-lg lg:text-2xl">{{ weekday }}</h1>
             <img
                 :src="getIconUrl(prediction.icon, true)"
                 class="max-w-1/2 self-center flex-grow drop-shadow-lg"
             />
-            <h1 class="text-center font-bold text-2xl">{{ prediction.avgTemp.toFixed() }}°C</h1>
+            <h1 class="text-center font-bold text-lg lg:text-2xl">{{ prediction.avgTemp.toFixed() }}°C</h1>
             <div class="flex flex-row">
                 <h2 class="text-center text-zinc-400">{{ prediction.maxTemp.toFixed() }}°C | {{ prediction.minTemp.toFixed() }}°C</h2>
             </div>
