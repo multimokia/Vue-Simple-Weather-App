@@ -25,7 +25,6 @@ export default {
             this.$emit("update:weatherData", (event.target as HTMLInputElement).value);
         },
         search() {
-            console.log(searchQuery.value);
             OWM_APIService.getWeatherDataByCity(searchQuery.value).then((data) => {
                 this.$emit("update:weatherData", data);
                 this.searchError = null;
