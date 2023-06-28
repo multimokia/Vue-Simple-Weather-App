@@ -139,8 +139,6 @@ export default {
                     const min = Math.min(...line.dataset.data as number[]);
                     const max = Math.max(...line.dataset.data as number[]);
 
-                    console.log(`Min: ${min}, Max: ${max}`);
-
                     // We now need to determine which of the hardstops are within our min/max range
                     const hardstops = [
                         { value: 0, color: 'blue'},
@@ -161,16 +159,12 @@ export default {
                         })
                     );
 
-                    console.log(normalizedHardstops);
-
                     // First things first, we should check if any percentages will be within the values
                     const percentagesInRange = normalizedHardstops.filter(
                         (hardstop) => {
                             return hardstop.normalizedValue >= 0 && hardstop.normalizedValue <= 1;
                         }
                     );
-
-                    console.log(percentagesInRange);
 
                     // Now that we know our current hardstop, let's see if we're close enough to another hardstop to need to bleed colors
                     // For now, let's take +/- 30% of 0 or 1 for the bleeding
@@ -188,7 +182,6 @@ export default {
                                 // We need to check how far we can bleed as to not go over 1
                                 let bleedAmt = 0.2;
 
-                                console.log(prevPercentage);
                                 if (1 - prevPercentage - bleedAmt < 0) {
                                     bleedAmt = 1 - prevPercentage;
                                 }

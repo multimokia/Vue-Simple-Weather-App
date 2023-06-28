@@ -1,33 +1,59 @@
 <script lang="ts">
-import { PropType } from 'vue';
+import { ref } from 'vue';
+import { OWM_APIService } from '../services/OpenWeatherMapAPI.service';
+import { WeatherDataResponse } from '../types/WeatherDataResponse';
+
+let searchQuery = ref('');
+let searchError: Error | null = null;
 
 export default {
     name: 'SearchBar',
     props: {
-        onSubmit: {
-            type: Function as PropType<(payload: Event) => void>,
-            required: true
-        },
-        searchQuery: {
-            type: String,
-            required: true
+        weatherData: {
+            type: Object as () => WeatherDataResponse,
+            required: true,
         }
+    },
+    data() {
+        return {
+            searchQuery,
+            searchError,
+        };
     },
     methods: {
         updateSearchQuery(event: Event) {
-            this.$emit("update:searchQuery", (event.target as HTMLInputElement).value);
+            this.$emit("update:weatherData", (event.target as HTMLInputElement).value);
+        },
+        search() {
+            console.log(searchQuery.value);
+            OWM_APIService.getWeatherDataByCity(searchQuery.value).then((data) => {
+                this.$emit("update:weatherData", data);
+                this.searchError = null;
+            })
+            .catch((error: Error) => {
+                this.searchError = error;
+            });
         }
     }
 }
 </script>
 <template>
-    <div class="w-3/4">
-        <form class="flex flex-row w-full " v-on:submit.prevent="onSubmit">
+    <div class="w-3/4 flex flex-col items-center">
+        <form class="flex flex-row w-full " v-on:submit.prevent="search">
             <input
                 type="text"
                 placeholder="Search..."
-                class="flex-grow p-2 text-lg text-left rounded-l-lg focus:bg-zinc-700 transition-colors"
-                v-on:change="updateSearchQuery"
+                :class="`
+                    flex-grow
+                    p-2
+                    text-lg
+                    text-left
+                    rounded-l-lg
+                    focus:bg-zinc-700
+                    transition-colors
+                    ${searchError ? 'text-red-500 bg-red-200' : 'text-white bg-zinc-600'}
+                `"
+                v-model="searchQuery"
             />
             <button
                 type="submit"
@@ -38,5 +64,6 @@ export default {
                 </svg>
             </button>
         </form>
+        <p v-if="searchError" class="text-red-500 italic transition-all bg-zinc-700 rounded-xl w-fit text-center p-2 mt-2">{{ searchError.message }}</p>
     </div>
 </template>

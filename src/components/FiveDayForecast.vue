@@ -13,8 +13,6 @@ export default {
             required: true,
         }
     },
-    data() {
-    },
     methods: {
         getIconUrl(icon: string, forceDay: boolean = false) {
             return OWM_APIService.getIconUrl(icon, forceDay);
@@ -83,7 +81,6 @@ export default {
                     <h2 class="text-center text-zinc-400 whitespace-nowrap">{{ prediction.maxTemp.toFixed() }}°C | {{ prediction.minTemp.toFixed() }}°C</h2>
                 </div>
             </div>
-
         </div>
     </div>
 </template>

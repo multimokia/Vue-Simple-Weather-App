@@ -50,9 +50,8 @@ export default {
 <template>
     <div class="flex flex-col items-center space-y-4 rounded-xl">
         <SearchBar
-            :searchQuery="searchQuery"
-            @update:searchQuery="searchQuery = $event"
-            @submit="search"
+            :weather-data="weatherData"
+            @update:weatherData="weatherData = $event"
             class="self-center animate-fade-down"
         />
         <WeatherEmbed

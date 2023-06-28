@@ -23,12 +23,13 @@ export class OpenWeatherMapAPIService {
     async getWeatherDataByCity(city: string) {
         const locations = await this.getLocationsOfCity(city);
 
-        if (locations.length === 0) {
+        // We assume that the first location is the correct one
+        const location = locations[0];
+
+        if (!location) {
             throw new Error('City not found');
         }
 
-        // We assume that the first location is the correct one
-        const location = locations[0];
         return {
             currentWeather: await this.getWeatherData(location.lat, location.lon),
             forecast: await this.get5DayForecast(location.lat, location.lon)

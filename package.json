@@ -15,7 +15,8 @@
     "tailwindcss-animated": "^1.0.1",
     "usemodal-vue3": "^0.3.7",
     "vue": "^3.2.47",
-    "vue-chartjs": "^5.2.0"
+    "vue-chartjs": "^5.2.0",
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
     "@types/luxon": "^3.3.0",
